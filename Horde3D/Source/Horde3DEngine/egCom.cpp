@@ -19,6 +19,8 @@
 
 #include "utDebug.h"
 
+#include <iostream>
+
 
 namespace Horde3D {
 
@@ -195,6 +197,8 @@ void EngineLog::pushMessage( int level, const char *msg, va_list args )
 	OutputDebugString( headers[std::min( (uint32)level, (uint32)5 )] );
 	OutputDebugStringA( _textBuf );
 	OutputDebugString( TEXT("\r\n") );
+#else
+    std::cout << _textBuf << std::endl;
 #endif
 }
 
