@@ -45,6 +45,8 @@ struct DaeNode
 	std::string                       name;
 	bool                              joint;
 	bool                              reference;
+	bool							  light;
+	bool							  camera;
 
 	std::vector< DaeTransformation >  transStack;
 	std::vector< DaeNode * >          children;
@@ -58,13 +60,16 @@ struct DaeNode
 	bool parse( const XMLNode &nodeNode )
 	{
 		reference = false;	
+		light = false;
+		camera = false;
+		joint = false;
+
 		id = nodeNode.getAttribute( "id", "" );
 		name = nodeNode.getAttribute( "name", "" );
 		if( name.empty() ) name = id;
 		sid = nodeNode.getAttribute( "sid", id.c_str() );
 		
 		if( strcmp( nodeNode.getAttribute( "type", "" ), "JOINT" ) == 0 ) joint = true;
-		else joint = false;
 		
 		// Parse transformations
 		XMLNode node1 = nodeNode.getFirstChild();
@@ -156,8 +161,20 @@ struct DaeNode
 				}
 			}
 			else if( strcmp( node1.getName(), "instance_geometry" ) == 0 ||
-			         strcmp( node1.getName(), "instance_controller" ) == 0 )
+			         strcmp( node1.getName(), "instance_controller" ) == 0 ||
+					 strcmp(node1.getName(), "instance_light") == 0 ||
+					 strcmp(node1.getName(), "instance_camera") == 0)
 			{
+				if (strcmp(node1.getName(), "instance_light") == 0)
+				{
+					light = true;
+				}
+
+				if (strcmp(node1.getName(), "instance_camera") == 0)
+				{
+					camera = true;
+				}
+
 				std::string url = node1.getAttribute( "url", "" );
 				removeGate( url );
 

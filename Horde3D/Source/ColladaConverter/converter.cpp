@@ -114,6 +114,18 @@ SceneNode *Converter::findNode( const char *name, SceneNode *ignoredNode )
 			return _meshes[i];
 	}
 
+	for (size_t i = 0, s = _lights.size(); i < s; ++i)
+	{
+		if (_lights[i] != ignoredNode && strcmp(_lights[i]->name, name) == 0)
+			return _lights[i];
+	}
+
+	for (size_t i = 0, s = _cameras.size(); i < s; ++i)
+	{
+		if (_cameras[i] != ignoredNode && strcmp(_cameras[i]->name, name) == 0)
+			return _cameras[i];
+	}
+
 	return 0x0;
 }
 
@@ -214,6 +226,16 @@ SceneNode *Converter::processNode( DaeNode &node, SceneNode *parentNode,
 	{
 		oNode = new Joint();
 		_joints.push_back( (Joint *)oNode );
+	}
+	else if (node.light)
+	{
+		oNode = new Light();
+		_lights.push_back( (Light*)oNode );
+	}
+	else if (node.camera)
+	{
+		oNode = new Camera();
+		_cameras.push_back((Camera*)oNode);
 	}
 	else
 	{
@@ -1103,7 +1125,7 @@ void Converter::writeSGNode( const string &assetPath, const string &modelName, S
 	rot.z = radToDeg( rot.z );
 
 	// Write mesh
-	if( !node->typeJoint )
+	if( node->typeMesh )
 	{
 		Mesh *mesh = (Mesh *)node;
 		
@@ -1142,7 +1164,7 @@ void Converter::writeSGNode( const string &assetPath, const string &modelName, S
 			if( i > 0 ) outf << " />\n";
 		}
 	}
-	else
+	else if ( node->typeJoint )
 	{
 		Joint *joint = (Joint *)node;
 		
@@ -1156,6 +1178,53 @@ void Converter::writeSGNode( const string &assetPath, const string &modelName, S
 		if( scale != Vec3f( 1, 1, 1 ) )
 			outf << "sx=\"" << scale.x << "\" sy=\"" << scale.y << "\" sz=\"" << scale.z << "\" ";
 		outf << "jointIndex=\"" << joint->index << "\"";
+	}
+	else if ( node->typeLight )
+	{
+		Light *light = (Light*)node;
+
+		for (unsigned int j = 0; j < depth + 1; ++j) outf << "\t";
+		outf << "<Light ";
+		outf << "name=\"" << light->name << "\" ";
+		if (trans != Vec3f(0, 0, 0))
+			outf << "tx=\"" << trans.x << "\" ty=\"" << trans.y << "\" tz=\"" << trans.z << "\" ";
+		if (rot != Vec3f(0, 0, 0))
+			outf << "rx=\"" << rot.x << "\" ry=\"" << rot.y << "\" rz=\"" << rot.z << "\" ";
+		if (scale != Vec3f(1, 1, 1))
+			outf << "sx=\"" << scale.x << "\" sy=\"" << scale.y << "\" sz=\"" << scale.z << "\" ";
+
+		outf << "lightingContext=\"LIGHTING\"" << " ";
+		outf << "shadowContext=\"SHADOWMAP\"" << " ";
+		outf << "shadowMapBias=\"0.001\"" << " ";
+		outf << "shadowMapCount=\"4\"" << " ";
+		outf << "shadowSplitLambda=\"0.9\"" << " ";
+		outf << "radius=\"" << light->radius << "\" ";
+		outf << "col_R=\"" << light->col.x << "\" col_G=\"" << light->col.y << "\" col_B=\"" << light->col.z << "\" ";
+		outf << "fov=\"" << light->fov << "\" ";
+	}
+	else if ( node->typeCamera )
+	{
+		Camera *camera = (Camera*)node;
+
+		for (unsigned int j = 0; j < depth + 1; ++j) outf << "\t";
+		outf << "<Camera ";
+		outf << "name=\"" << camera->name << "\" ";
+		if (trans != Vec3f(0, 0, 0))
+			outf << "tx=\"" << trans.x << "\" ty=\"" << trans.y << "\" tz=\"" << trans.z << "\" ";
+		if (rot != Vec3f(0, 0, 0))
+			outf << "rx=\"" << rot.x << "\" ry=\"" << rot.y << "\" rz=\"" << rot.z << "\" ";
+		if (scale != Vec3f(1, 1, 1))
+			outf << "sx=\"" << scale.x << "\" sy=\"" << scale.y << "\" sz=\"" << scale.z << "\" ";
+
+		outf << "pipeline=\"pipelines/forward.pipeline.xml\"" << " ";
+		outf << "keepAspect=\"1\"" << " ";
+		outf << "nearPlane=\"" << camera->nearPlane << "\" ";
+		outf << "nearDist=\"" << camera->nearDist << "\" ";
+		outf << "farPlane=\"" << camera->farPlane << "\" ";
+		outf << "topPlane=\"" << camera->topPlane << "\" ";
+		outf << "bottomPlane=\"" << camera->bottomPlane << "\" ";
+		outf << "leftPlane=\"" << camera->leftPlane << "\" ";
+		outf << "rightPlane=\"" << camera->rightPlane << "\" ";
 	}
 
 	if( node->children.size() == 0 )
@@ -1224,6 +1293,18 @@ bool Converter::writeSceneGraph( const string &assetPath, const string &assetNam
 	for( unsigned int i = 0; i < _meshes.size(); ++i )
 	{
 		if( _meshes[i]->parent == 0x0 ) writeSGNode( assetPath, modelName, _meshes[i], 0, outf );
+	}
+
+	// Cameras
+	for (unsigned int i = 0; i < _cameras.size(); ++i)
+	{
+		if (_cameras[i]->parent == 0x0) writeSGNode(assetPath, modelName, _cameras[i], 0, outf);
+	}
+
+	// Lights 
+	for (unsigned int i = 0; i < _lights.size(); ++i)
+	{
+		if (_lights[i]->parent == 0x0) writeSGNode(assetPath, modelName, _lights[i], 0, outf);
 	}
 
 	outf << "</Model>\n";
