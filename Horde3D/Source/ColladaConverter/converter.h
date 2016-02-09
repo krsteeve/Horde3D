@@ -59,7 +59,10 @@ struct TriGroup
 
 struct SceneNode
 {
+	bool					    typeMesh;
 	bool                        typeJoint;
+	bool					    typeLight;
+	bool					    typeCamera;
 	char                        name[256];
 	Matrix4f                    matRel, matAbs;
 	DaeNode                     *daeNode;
@@ -92,7 +95,10 @@ struct Mesh : public SceneNode
 	
 	Mesh()
 	{
+		typeMesh = true;
 		typeJoint = false;
+		typeLight = false;
+		typeCamera = false;
 		parent = 0x0;
 		lodLevel = 0;
 	}
@@ -101,6 +107,70 @@ struct Mesh : public SceneNode
 
 };
 
+struct Camera : public SceneNode
+{
+	Camera()
+	{
+		typeMesh = false;
+		typeJoint = false;
+		typeLight = false;
+		typeCamera = true;
+		parent = 0x0;
+		nearPlane = 0.0f;
+		nearDist = 0.0f;
+		farPlane = 0.0f;
+		topPlane = 0.0f;
+		bottomPlane = 0.0f;
+		leftPlane = 0.0f;
+		rightPlane = 0.0f;
+	}
+
+	float nearPlane;
+	float nearDist;
+	float farPlane;
+	float topPlane;
+	float bottomPlane;
+	float leftPlane;
+	float rightPlane;
+};
+
+struct Light : public SceneNode
+{
+	Light()
+	{
+		typeMesh = false;
+		typeJoint = false;
+		typeLight = true;
+		typeCamera = false;
+		lightSpot = false;
+		lightPoint = false;
+		lightDirectional = false;
+		parent = 0x0;
+		col = Vec3f(0, 0, 0);
+		constantAttenuation = 0.0f;
+		linearAttenuation = 0.0f;
+		quadraticAttenuation = 0.0f;
+		falloffAngle = 0.0f;
+		falloffExponent = 0.0f;
+	}
+
+	//light types
+	bool lightDirectional;
+	bool lightSpot;
+	bool lightPoint;
+
+	//all shared
+	Vec3f col;
+
+	//spot and point shared
+	float constantAttenuation;
+	float linearAttenuation;
+	float quadraticAttenuation;
+
+	//spot only
+	float falloffAngle;
+	float falloffExponent;
+};
 
 struct Joint : public SceneNode
 {
@@ -113,7 +183,10 @@ struct Joint : public SceneNode
 
 	Joint()
 	{
+		typeMesh = false;
 		typeJoint = true;
+		typeLight = false;
+		typeCamera = false;
 		used = false;
 	}
 };
@@ -174,6 +247,8 @@ private:
 	std::vector< unsigned int >  _indices;
 	std::vector< Mesh * >        _meshes;
 	std::vector< Joint * >       _joints;
+	std::vector< Light * >       _lights;
+	std::vector< Camera * >	     _cameras;
 	std::vector< MorphTarget >   _morphTargets;
 	std::vector< SceneNode* >    _nodes;
 

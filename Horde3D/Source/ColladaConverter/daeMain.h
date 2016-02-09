@@ -22,6 +22,8 @@
 #include "daeLibControllers.h"
 #include "daeLibAnimations.h"
 #include "daeLibNodes.h"
+#include "daeLibLights.h"
+#include "daeLibCameras.h"
 
 
 class ColladaDocument
@@ -39,6 +41,8 @@ public:
 	DaeLibControllers  libControllers;
 	DaeLibAnimations   libAnimations;
 	DaeLibNodes        libNodes;
+	DaeLibCameras      libCameras;
+	DaeLibLights	   libLights;
 
 	DaeVisualScene     *scene;
 	bool               y_up;

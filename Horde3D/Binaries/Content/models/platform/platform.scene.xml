@@ -1,4 +1,5 @@
-<Model name="platform" geometry="models/platform/platform.geo">
-
-	<Mesh name="Cone01" material="models/platform/stones.material.xml" rx="-0" ry="0" rz="180" batchStart="0" batchCount="576" vertRStart="0" vertREnd="193" />
-</Model>
+<!DOCTYPE HordeSceneGraph>
+<Group name="platform">
+    <Camera nearPlane="0.1" leftPlane="-0.0552285" farPlane="1000" tz="12.0" rx="-20" pipeline="pipelines/deferred.pipeline.xml" rightPlane="0.0552285" ty="7.5" name="Camera" bottomPlane="-0.0414214" topPlane="0.0414214" tx="0.0"/>
+    <Light shadowMapBias="0.005" shadowContext="SHADOWMAP" col_R="1" radius="100" tz="6.0" rx="-27" fov="90" col_G="1" shadowSplitLambda="0" lightingContext="LIGHTING" ty="4" ry="-22" name="Light" tx="-3.25" shadowMapCount="1" col_B="1"/>
+</Group>
