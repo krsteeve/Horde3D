@@ -105,7 +105,7 @@ bool Application::init()
 
 	// Add light source
 	H3DNode light = h3dAddLightNode( H3DRootNode, "Light1", 0, "LIGHTING", "SHADOWMAP" );
-	h3dSetNodeTransform( light, 0, 15, 10, -60, 0, 0, 1, 1, 1 );
+	h3dSetNodeTransform( light, 0, 5, 10, -60, 0, 0, 1, 1, 1 );
 	h3dSetNodeParamF( light, H3DLight::RadiusF, 0, 30 );
 	h3dSetNodeParamF( light, H3DLight::FovF, 0, 90 );
 	h3dSetNodeParamI( light, H3DLight::ShadowMapCountI, 1 );

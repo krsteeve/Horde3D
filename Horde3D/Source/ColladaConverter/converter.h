@@ -142,17 +142,35 @@ struct Light : public SceneNode
 		typeJoint = false;
 		typeLight = true;
 		typeCamera = false;
+		lightSpot = false;
+		lightPoint = false;
+		lightDirectional = false;
 		parent = 0x0;
 		col = Vec3f(0, 0, 0);
-		fov = 90.0;
-		radius = 0;
+		constantAttenuation = 0.0f;
+		linearAttenuation = 0.0f;
+		quadraticAttenuation = 0.0f;
+		falloffAngle = 0.0f;
+		falloffExponent = 0.0f;
 	}
 
-	float radius;
-	Vec3f col;
-	float fov;
-};
+	//light types
+	bool lightDirectional;
+	bool lightSpot;
+	bool lightPoint;
 
+	//all shared
+	Vec3f col;
+
+	//spot and point shared
+	float constantAttenuation;
+	float linearAttenuation;
+	float quadraticAttenuation;
+
+	//spot only
+	float falloffAngle;
+	float falloffExponent;
+};
 
 struct Joint : public SceneNode
 {

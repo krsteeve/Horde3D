@@ -284,6 +284,169 @@ struct DaeNode
 	}
 };
 
+struct DaeLight
+{
+	std::string               id;
+	std::string				  name;
+	bool directional;
+	bool spot;
+	bool point;
+	Vec3f col;
+	float constantAttenuation;
+	float linearAttenuation;
+	float quadraticAttenutation;
+	float falloffAngle;
+	float falloffExponent;
+
+	bool parse( const XMLNode &nodeLight )
+	{
+		id = nodeLight.getAttribute("id", "");
+		name = nodeLight.getAttribute("name", "");
+		if (name.empty()) name = id;
+
+		spot = false;
+		point = false;
+		directional = false;
+
+		XMLNode node1 = nodeLight.getFirstChild();
+		while ( !node1.isEmpty() )
+		{
+			if (node1.getName() == 0x0) continue;
+
+			if (strcmp(node1.getName(), "technique_common") == 0 )
+			{
+				XMLNode node2 = node1.getFirstChild();
+				if (!node2.isEmpty() && node2.getName() != 0x0)
+				{
+					if (strcmp(node2.getName(), "directional") == 0)
+					{
+						directional = true;
+						XMLNode node3 = node2.getFirstChild();
+						while (!node3.isEmpty())
+						{
+							if (node3.getName() == 0x0) continue;
+
+							if (strcmp(node3.getName(), "color") == 0)
+							{
+								char *str = (char*)node3.getText();
+								if (str == 0x0) continue;
+								parseFloat(str, col.x);
+								parseFloat(str, col.y);
+								parseFloat(str, col.z);
+							}
+
+							node3 = node3.getNextSibling();
+						}
+					}
+					else if (strcmp(node2.getName(), "point") == 0)
+					{
+						point = true;
+						XMLNode node3 = node2.getFirstChild();
+						while (!node3.isEmpty())
+						{
+							if (node3.getName() == 0x0) continue;
+
+							if (strcmp(node3.getName(), "color") == 0)
+							{
+								char *str = (char*)node3.getText();
+								if (str == 0x0) continue;
+								parseFloat(str, col.x);
+								parseFloat(str, col.y);
+								parseFloat(str, col.z);
+							}
+							else if (strcmp(node3.getName(), "constant_attenuation") == 0)
+							{
+								char *str = (char*)node3.getText();
+								if (str == 0x0) continue;
+								parseFloat(str, constantAttenuation);
+							}
+							else if (strcmp(node3.getName(), "linear_attenuation") == 0)
+							{
+								char *str = (char*)node3.getText();
+								if (str == 0x0) continue;
+								parseFloat(str, linearAttenuation);
+							}
+							else if (strcmp(node3.getName(), "quadratic_attenuation") == 0)
+							{
+								char *str = (char*)node3.getText();
+								if (str == 0x0) continue;
+								parseFloat(str, quadraticAttenutation);
+							}
+
+							node3 = node3.getNextSibling();
+						}
+					}
+					else if (strcmp(node2.getName(), "spot") == 0)
+					{
+						spot = true;
+						XMLNode node3 = node2.getFirstChild();
+						while (!node3.isEmpty())
+						{
+							if (node3.getName() == 0x0) continue;
+
+							if (strcmp(node3.getName(), "color") == 0)
+							{
+								char *str = (char*)node3.getText();
+								if (str == 0x0) continue;
+								parseFloat(str, col.x);
+								parseFloat(str, col.y);
+								parseFloat(str, col.z);
+							}
+							else if (strcmp(node3.getName(), "constant_attenuation") == 0)
+							{
+								char *str = (char*)node3.getText();
+								if (str == 0x0) continue;
+								parseFloat(str, constantAttenuation);
+							}
+							else if (strcmp(node3.getName(), "linear_attenuation") == 0)
+							{
+								char *str = (char*)node3.getText();
+								if (str == 0x0) continue;
+								parseFloat(str, linearAttenuation);
+							}
+							else if (strcmp(node3.getName(), "quadratic_attenuation") == 0)
+							{
+								char *str = (char*)node3.getText();
+								if (str == 0x0) continue;
+								parseFloat(str, quadraticAttenutation);
+							}
+							else if (strcmp(node3.getName(), "falloff_angle") == 0)
+							{
+								char *str = (char*)node3.getText();
+								if (str == 0x0) continue;
+								parseFloat(str, falloffAngle);
+							}
+							else if (strcmp(node3.getName(), "falloff_exponent") == 0)
+							{
+								char *str = (char*)node3.getText();
+								if (str == 0x0) continue;
+								parseFloat(str, falloffExponent);
+							}
+
+							node3 = node3.getNextSibling();
+						}
+					}
+				}
+			}
+
+			node1 = node1.getNextSibling();
+		}
+
+		return directional || spot || point;
+	}
+};
+
+struct DaeCamera
+{
+	std::string               id;
+
+	bool parse( const XMLNode &nodeCamera )
+	{
+		id = nodeCamera.getAttribute("id", "");
+
+		return false;
+	}
+};
 
 struct DaeVisualScene
 {

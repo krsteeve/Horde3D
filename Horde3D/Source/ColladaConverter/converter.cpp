@@ -230,7 +230,30 @@ SceneNode *Converter::processNode( DaeNode &node, SceneNode *parentNode,
 	else if (node.light)
 	{
 		oNode = new Light();
-		_lights.push_back( (Light*)oNode );
+		_lights.push_back((Light*)oNode);
+
+		DaeInstance* inst = &node.instances[0];
+		DaeLight* l = _daeDoc.libLights.findLight(inst->url);
+
+		Light *pLight = (Light*)oNode;
+		pLight->lightDirectional = l->directional;
+		pLight->lightPoint = l->point;
+		pLight->lightSpot = l->spot;
+		if (l->directional || l->point || l->spot)
+		{
+			pLight->col = l->col;
+		}
+		if (l->point || l->spot)
+		{
+			pLight->constantAttenuation = l->constantAttenuation;
+			pLight->linearAttenuation = l->linearAttenuation;
+			pLight->quadraticAttenuation = l->quadraticAttenutation;
+		}
+		if (l->spot)
+		{
+			pLight->falloffAngle = l->falloffAngle;
+			pLight->falloffExponent = l->falloffExponent;
+		}
 	}
 	else if (node.camera)
 	{
@@ -1186,6 +1209,7 @@ void Converter::writeSGNode( const string &assetPath, const string &modelName, S
 		for (unsigned int j = 0; j < depth + 1; ++j) outf << "\t";
 		outf << "<Light ";
 		outf << "name=\"" << light->name << "\" ";
+		outf << "type=\"" << (light->lightDirectional ? "directional" : (light->lightPoint ? "point" : (light->lightSpot ? "spot" : "unrecognizedERROR"))) << "\" ";
 		if (trans != Vec3f(0, 0, 0))
 			outf << "tx=\"" << trans.x << "\" ty=\"" << trans.y << "\" tz=\"" << trans.z << "\" ";
 		if (rot != Vec3f(0, 0, 0))
@@ -1198,9 +1222,21 @@ void Converter::writeSGNode( const string &assetPath, const string &modelName, S
 		outf << "shadowMapBias=\"0.001\"" << " ";
 		outf << "shadowMapCount=\"4\"" << " ";
 		outf << "shadowSplitLambda=\"0.9\"" << " ";
-		outf << "radius=\"" << light->radius << "\" ";
+
+		//all shared
 		outf << "col_R=\"" << light->col.x << "\" col_G=\"" << light->col.y << "\" col_B=\"" << light->col.z << "\" ";
-		outf << "fov=\"" << light->fov << "\" ";
+
+		//point and spot shared
+		if (light->lightPoint || light->lightSpot)
+		{
+			outf << "constant_attenuation=\"" << light->constantAttenuation << "\" " << "linear_attenuation=\"" << light->linearAttenuation << "\" " << "quadratic_attenuation=\"" << light->quadraticAttenuation << "\" ";
+		}
+
+		//spot only
+		if (light->lightSpot)
+		{
+			outf << "falloff_angle=\"" << light->falloffAngle << "\" " << "falloff_exponent=\"" << light->falloffExponent << "\" ";
+		}
 	}
 	else if ( node->typeCamera )
 	{
